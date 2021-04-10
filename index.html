@@ -1,7 +1,85 @@
-<!DOCTYPE html>
-<html>
-<body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
-</body>
-</html>
+
+
+A Stylish Generative adversarial network: StyleGAN
+
+By Zhiyuan Liu
+
+Introduction: What is StyleGAN?
+
+Before introducing StyleGAN let’s first go over what GAN is.
+
+GAN:
+
+The generative Adversarial Network, known as GAN, has two major parts, the generator and the discriminator. The generator is fed with a randomly generated latent factor and generates an image. Then the discriminator compares the generated image with the real image and tries to tell which image is real.  During training, the generator tries to generate images that are close to the real images, such that the discriminator can’t discriminate those generated images from the real ones. (_Figure: Generator for GAN.  A Style-Based Generator Architecture for Generative Adversarial NetworksTero Karras, Samuli Laine, Timo Aila. arXiv/1812.04948_)
+
+StyleGAN:
+
+Different from traditional GAN, in StyleGAN, before using as the input, the latent factor is firstly mapped into a latent space _W_. _W_ will go through an AdaIN (adaptive instance normalizer) module at each CNN layer and generates a style factor. After each CNN, gaussian noise is added. These inserted values control the “style” of the picture at each size of the training process. (_Figure: Generator for StyleGAN.  A Style-Based Generator Architecture for Generative Adversarial NetworksTero Karras, Samuli Laine, Timo Aila arXiv/1812.04948_) Here “style” means many things, they are characteristics of the images, such as hairstyle, hair colour, skin tone, etc.
+
+Model Details: AdaIN
+
+The adaptive instance normalization, called AdaIN, is the normalizer used on the latent space to generate the style factor that can be applied to the model. The detailed formula is this:
+
+
+
+<p id="gdcalert1" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image1.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert2">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+
+
+![alt_text](images/image1.png "image_tooltip")
+
+
+In AdaIN, “x<sub>i</sub> is normalized separately and then scaled and biased using the corresponding scalar components from style y.” (_A Style-Based Generator Architecture for Generative Adversarial NetworksTero Karras, Samuli Laine, Timo Aila arXiv/1812.04948_)
+
+Model Details: Style
+
+As you might already know, the vanilla GAN model is very hard to train, so as an improvement we have ProGAN. ProGAN maps both the generated image and target image to a very small scale at the early steps of the training. The model usually starts with 4*4 dimensions, and then 8*8, 16*16, etc. Since the generator has already learnt how to generate a precise smaller-scaled image, it will be easier to train them to generate images that are a little bit larger. And finally, both the generator and discriminator can process the image with its original scale. (_Figure of how ProGAN works. PROGRESSIVE GROWING OF GANS FOR IMPROVED QUALITY, STABILITY, AND VARIATION, Tero Karras, Timo Aila, Samuli Laine, Jaakko Lehtinen. arXiv/1710.10196_ )
+
+
+
+<p id="gdcalert2" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image2.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert3">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+
+
+![alt_text](images/image2.png "image_tooltip")
+
+
+StyleGAN is also trained in this way. However, what’s noteworthy is that the style factor acts differently when applying to different steps of training.
+
+During the early stage of the training, the style factor impacts the resulting image on a really large scale. It can change the overall style of the generated image, such as face shape, hairstyle, facial expressions, etc. These kinds of characteristics combined can determine very important elements of the image such as gender (or species if you are generating animals).
+
+<p id="gdcalert3" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image3.gif). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert4">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+
+
+![alt_text](images/image3.gif "image_tooltip")
+
+
+During the middle stage of the training, the style factor has relatively smaller impact on the resulting image. These changes are mainly detailed characteristics of the face, such as eye shape, mouth shape, nose length, etc. Unlike those in the earlier stages of the training, these characters can’t change the overall style of the face (such as gender and race), but they can change the face to a different one such that one can tell the faces are not from the same person even though they are somewhat identical.
+
+
+
+<p id="gdcalert4" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image4.gif). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert5">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+
+
+![alt_text](images/image4.gif "image_tooltip")
+
+
+During the final stage of the training, the style factor only has subtle effects on the resulting image, such as the colour tone of the image. The changes are so subtle to the face that no person will say the faces are from different individuals.
+
+
+
+<p id="gdcalert5" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image5.gif). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert6">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+
+
+![alt_text](images/image5.gif "image_tooltip")
+
+
+Model Details: Noise
+
+As you might have already noticed in the model graph above, there are also gaussian noises. These noises give variation to some details of the generated image, such as how hair is distributed, how freckle is distributed, how wrinkle is lined.
+
+
+
+<p id="gdcalert6" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image6.gif). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert7">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+
+
+![alt_text](images/image6.gif "image_tooltip")
+
